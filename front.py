@@ -130,3 +130,4 @@ if __name__ == '__main__':
     ex = SensorApp()
     sys.exit(app.exec_())
     print("test")
+    print("test2")

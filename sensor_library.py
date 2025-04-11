@@ -1,8 +1,12 @@
 sensor_library = {
+
+    # Из рабочего на данный момент тут только 2 пути для стерео и моно камеры в 1 сцену "Сцена №1"
+    # К остальным датчикам надо править пути
+    
     "camera": [
-        {"name": "stereo_camera", "ros_launch": "test_scripts/launch_stereo.sh", "test_scene": "scene1"},
-        {"name": "mono_camera", "ros_launch": "test_scripts/launch_mono.sh", "test_scene": "scene1"},
-        {"name": "depth_camera", "ros_launch": "test_scripts/launch_depth.sh", "test_scene": "scene1"}
+        {"name": "stereo_camera", "ros_launch": "scenario_1_test.launch", "test_scene": "Сцена №1"},
+        {"name": "mono_camera", "ros_pkg": "scenario_test_pkg", "launch_file": "scenario_1_test.launch", "test_scene": "Сцена №1"},
+        {"name": "depth_camera", "ros_pkg": "scenario_test_pkg", "launch_file": "scenario_1_test.launch", "test_scene": "Сцена №1"}
     ],
     "tactile": [
         {"name": "Wacoh-Tech DynPick", "ros_launch": "test_scripts/launch_wacoh_dynpick.sh", "test_scene": "touch_scene"},

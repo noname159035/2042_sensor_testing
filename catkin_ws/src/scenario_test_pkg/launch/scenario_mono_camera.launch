@@ -1,0 +1,13 @@
+<launch>
+  <!-- Путь к вашему новому world-файлу -->
+  <arg name="world_file" default="$(find scenario_test_pkg)/worlds/scenario_mono_camera.world"/>
+
+  <!-- Запуск Gazebo с этим миром -->
+  <include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <arg name="world_name" value="$(arg world_file)"/>
+    <arg name="paused" value="false"/>
+    <arg name="use_sim_time" value="true"/>
+    <arg name="gui" value="true"/>
+    <arg name="headless" value="false"/>
+  </include>
+</launch>

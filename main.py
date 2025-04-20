@@ -6,6 +6,7 @@ from test_runner import run_test
 import subprocess
 import os
 import time
+from datetime import datetime
 
 def print_menu():
     print("\nВыберите опцию:")
@@ -48,7 +49,7 @@ def add_custom_sensor():
     print(f"Датчик '{sensor_name}' успешно добавлен в тип '{sensor_type}'.")
 
 
-def capture_image():
+def capture_image(sensor_name: str, image_topic: str, timeout: int = 30):
     try:
         import rospy
         from sensor_msgs.msg import Image
@@ -62,14 +63,25 @@ def capture_image():
         rospy.init_node("image_capture_node", anonymous=True)
 
     try:
-        print("Ожидаем изображение с /test_camera/image_raw...")
-        msg = rospy.wait_for_message("/depth_camera/image_raw", Image, timeout=30)
+        print(f"Ожидаем изображение с {image_topic}…")
+        msg = rospy.wait_for_message(image_topic, Image, timeout=timeout)
         image = CvBridge().imgmsg_to_cv2(msg, "bgr8")
-        filename = "captured_image.png"
-        cv2.imwrite(filename, image)
-        return filename
+
+        # Создание подпапки, если её ещё нет
+        output_dir = "captured_images"
+        os.makedirs(output_dir, exist_ok=True)
+
+        # Формирование имени файла: sensor_имя_дата_время.png
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        filename = f"{sensor_name}_{timestamp}.png"
+        full_path = os.path.join(output_dir, filename)
+
+        cv2.imwrite(full_path, image)
+        print(f"✅ Изображение сохранено: {full_path}")
+        return full_path
+
     except Exception as e:
-        print("Ошибка при захвате:", e)
+        print("❌ Ошибка при захвате:", e)
         return None
 
 
@@ -138,14 +150,24 @@ def menu():
         elif choice == "4":
             t = input("Тип: ")
             n = input("Имя: ")
+            # 1. получаем словарь сенсора, чтобы узнать его image_topic
+            sensor = get_sensor(t, n)
+            if not sensor:
+                print(f"Ошибка: датчик '{n}' не найден в типе '{t}'.")
+                continue
+
+            # 2. запускаем тест
             print(run_test(t, n))
-            print("Ожидаем запуск...")
+            print("Ожидаем запуск сцены и публикацию данных...")
             time.sleep(5)
-            image = capture_image()
+
+            # 3. захватываем изображение по конкретному топику
+            topic = sensor.get("image_topic", "/camera/image_raw")
+            image = capture_image(n, topic)
             if image:
-                print("Снимок сохранен:", image)
+                print("Снимок сохранён:", image)
             else:
-                print("Снимок не удалось получить.")
+                print("Не удалось получить снимок.")
         elif choice == "5":
             break
 

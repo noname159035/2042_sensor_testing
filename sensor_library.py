@@ -4,9 +4,9 @@ sensor_library = {
     # К остальным датчикам надо править пути
     
     "camera": [
-        {"name": "stereo_camera", "ros_launch": "scenario_1_test.launch", "test_scene": "Сцена №1"},
-        {"name": "mono_camera", "ros_pkg": "scenario_test_pkg", "launch_file": "scenario_1_test.launch", "test_scene": "Сцена №1"},
-        {"name": "depth_camera", "ros_pkg": "scenario_test_pkg", "launch_file": "scenario_1_test.launch", "test_scene": "Сцена №1"}
+        {"name": "duo_minilx_lv1", "ros_pkg": "scenario_test_pkg", "launch_file": "duo_minilx_lv1.launch", "test_scene": "Стереокамера - Комплексная сцена", "image_topic": "/duo_minilx_lv1/left/image_raw", "config_file": "camera_configs/duo_minilx_lv1.yaml"},
+        {"name": "mono_camera", "ros_pkg": "scenario_test_pkg", "launch_file": "scenario_mono_camera.launch", "test_scene": "Сцена №1", "image_topic":"/mono_camera/image_raw"},
+        {"name": "depth_camera", "ros_pkg": "scenario_test_pkg", "launch_file": "scenario_1_test.launch", "test_scene": "Сцена №1", "image_topic":"/depth_camera/image_raw"}
     ],
     "tactile": [
         {"name": "Wacoh-Tech DynPick", "ros_launch": "test_scripts/launch_wacoh_dynpick.sh", "test_scene": "touch_scene"},

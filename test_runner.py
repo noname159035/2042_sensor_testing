@@ -9,6 +9,7 @@ import subprocess
 
 def run_test(sensor_type: str, sensor_name: str):
     sensor = get_sensor(sensor_type, sensor_name)
+    image_topic = sensor.get("image_topic", "/camera/image_raw")
     if not sensor:
         return f"Датчик {sensor_name} не найден для типа {sensor_type}"
 
@@ -23,3 +24,12 @@ def run_test(sensor_type: str, sensor_name: str):
                 f"'{sensor['test_scene']}'. (ROS-лаунч: {sensor['ros_pkg']} {sensor['launch_file']})")
     except Exception as e:
         return f"Ошибка при запуске теста: {e}"
+
+
+def kill_gazebo():
+    try:
+        subprocess.run(["pkill", "-f", "gzserver"], check=False)
+        subprocess.run(["pkill", "-f", "gzclient"], check=False)
+        print("🔁 Gazebo был завершён принудительно.")
+    except Exception as e:
+        print("⚠️ Ошибка при завершении Gazebo:", e)

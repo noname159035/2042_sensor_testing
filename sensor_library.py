@@ -18,7 +18,7 @@ sensor_library = {
         {"name": "skin_driver", "ros_launch": "test_scripts/launch_skin_driver.sh", "test_scene": "touch_scene"}
     ],
     "rfid": [
-        {"name": "UHF RFID Reader", "ros_launch": "test_scripts/launch_uhf_rfid.sh", "test_scene": "rfid_scene"},
+        {"name": "UHF RFID Reader", "ros_pkg": "scenario_test_pkg", "launch_file": "scenario_rfid_angle_test.launch", "test_scene": "rfid"},
         {"name": "Huxi RFID Reader", "ros_launch": "test_scripts/launch_huxi_rfid.sh", "test_scene": "rfid_scene"}
     ]
 }

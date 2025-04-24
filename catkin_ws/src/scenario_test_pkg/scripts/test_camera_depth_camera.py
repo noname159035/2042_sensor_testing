@@ -3,6 +3,7 @@ import rospy
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge, CvBridgeError
 import numpy as np
+from subprocess import run
 
 def get_depth_at_center(topic, timeout=10.0):
     try:

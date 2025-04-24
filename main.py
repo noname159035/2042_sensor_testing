@@ -2,7 +2,7 @@
 # main.py
 
 from sensor_library import get_sensor_types, get_sensors_by_type, add_sensor, get_sensor
-from test_runner import run_test
+from test_runner import run_test, kill_gazebo
 import subprocess
 import os
 import time
@@ -106,6 +106,8 @@ def run_sensor_test():
         print("Изображение успешно захвачено и сохранено как", filename)
     else:
         print("Не удалось захватить изображение.")
+
+    kill_gazebo()
 
 '''
 def main():

@@ -1,18 +1,35 @@
 # components/test_bar.py
 from PyQt5 import QtWidgets, QtCore
 from components.progress_bar_component import MyProgressBar
-from components.modal_result import TestResultDialog
 
 class TestBar(QtWidgets.QFrame):
-    def showModalResultDialog(self, result, etalon):
-        dialog = TestResultDialog(result, etalon, self)
-        dialog.exec()
+    def change_status(self, status):
+        try:
+            # print("Изменяем статус виджета на:", status)
 
-    def __init__(self, parent=None, title="Тест", left_button="Action1", right_button="Action2", status="Success"):
+            if hasattr(self, 'labelStatus'):
+                self.labelStatus.setText(status)
+
+            if hasattr(self, 'circle'):
+                if status == "Success":
+                    self.circle.setStyleSheet("background: #25BB57;")  # Зеленый
+                elif status == "Fail":
+                    self.circle.setStyleSheet("background: #BB2525;")  # Красный
+
+            if hasattr(self, 'progressBar') and self.progressBar:
+                # print("Удаляем progressBar...")
+                self.progressBar.setParent(None)  # Безопасное удаление
+
+            # print("Макет и виджеты обновлены успешно.")
+
+        except Exception as e:
+            print(f"Ошибка в change_status: {e}")
+
+    def __init__(self, parent=None, title="Тест", status="Success"):
         super(TestBar, self).__init__(parent)
-        self.setupUi(title, left_button, right_button, status)
+        self.setupUi(title, status)
 
-    def setupUi(self, title, left_button, right_button, status):
+    def setupUi(self, title, status):
         self.setObjectName("TestBarFrame")
         self.setMinimumSize(QtCore.QSize(476, 118))
         self.setMaximumSize(QtCore.QSize(476, 118))
@@ -42,31 +59,29 @@ class TestBar(QtWidgets.QFrame):
         """)
         # Заголовок
         self.labelTitle = QtWidgets.QLabel(self)
-        self.labelTitle.setGeometry(QtCore.QRect(20, 10, 100, 40))
+        self.labelTitle.setGeometry(QtCore.QRect(20, 10, 200, 40))
         self.labelTitle.setText(title)
-        self.labelTitle.setAlignment(QtCore.Qt.AlignCenter)
+        # self.labelTitle.setAlignment(QtCore.Qt.AlignStart)
         self.labelTitle.setObjectName("labelTitle")
 
-        if (status != "In Progress"):
+
             # Левая кнопка
-            self.leftButton = QtWidgets.QPushButton(self)
-            self.leftButton.setGeometry(QtCore.QRect(20, 70, 201, 31))
-            self.leftButton.setText(left_button)
-            self.leftButton.setObjectName("leftButton")
-            self.leftButton.setStyleSheet("""border-radius: 7px;""")
-            # Правая кнопка
-            self.rightButton = QtWidgets.QPushButton(self)
-            self.rightButton.setGeometry(QtCore.QRect(260, 70, 201, 31))
-            self.rightButton.setText(right_button)
-            self.rightButton.setObjectName("rightButton")
-            self.rightButton.setStyleSheet("""border-radius: 7px;""")
-            self.rightButton.clicked.connect(lambda: self.showModalResultDialog(result=123, etalon=12)
-)
-        else:
-            #Прогресс-бар
-            self.progressBar = MyProgressBar(self)
-            self.progressBar.setGeometry(QtCore.QRect(20, 70, 441, 31))
-            self.progressBar.setValue(50)
+        self.leftButton = QtWidgets.QPushButton(self)
+        self.leftButton.setGeometry(QtCore.QRect(20, 70, 201, 31))
+        self.leftButton.setText("Подробнее")
+        self.leftButton.setObjectName("leftButton")
+        self.leftButton.setStyleSheet("""border-radius: 7px;""")
+        # Правая кнопка
+        self.rightButton = QtWidgets.QPushButton(self)
+        self.rightButton.setGeometry(QtCore.QRect(260, 70, 201, 31))
+        self.rightButton.setText("Результат")
+        self.rightButton.setObjectName("rightButton")
+        self.rightButton.setStyleSheet("""border-radius: 7px;""")
+
+        #Прогресс-бар
+        self.progressBar = MyProgressBar(self)
+        self.progressBar.setGeometry(QtCore.QRect(20, 70, 441, 31))
+        self.progressBar.setValue(0)
 
         # Область статуса
         self.frameStatus = QtWidgets.QFrame(self)
@@ -97,3 +112,5 @@ class TestBar(QtWidgets.QFrame):
         self.labelStatus.setAlignment(QtCore.Qt.AlignCenter)
         self.labelStatus.setObjectName("labelStatus")
         self.labelStatus.setStyleSheet("""border: none;""")
+
+

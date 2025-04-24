@@ -106,12 +106,6 @@ class TestResultDialog(QtWidgets.QDialog):
         main_layout.addWidget(close_button, alignment=QtCore.Qt.AlignCenter)  # Добавляем кнопку в основной слой
 
     def create_value_container(self, value, is_result=False):
-        """
-        Создаем контейнер для отображения значения.
-        :param value: Значение для отображения.
-        :param is_result: Если True, стиль для результата, иначе для эталона.
-        :return: QWidget, содержащий значение в контейнере с рамкой.
-        """
         # Контейнер для значения
         container = QtWidgets.QLabel(str(value), self)
 

@@ -6,7 +6,18 @@ sensor_library = {
     # К остальным датчикам надо править пути
     
     "camera": [
-        {"name": "duo_minilx_lv1", "ros_pkg": "scenario_test_pkg", "launch_file": "duo_minilx_lv1.launch", "test_scene": "Стереокамера - Комплексная сцена", "image_topic": "/duo_minilx_lv1/left/image_raw", "config_file": "camera_configs/duo_minilx_lv1.yaml","tests": [("Тест на угол обзора", 100),("Тест на хуй", 10),]},
+        {
+            "name": "duo_minilx_lv1",
+            "ros_pkg": "scenario_test_pkg",
+            "launch_file": "duo_minilx_lv1.launch",
+            "test_scene": "Стереокамера - Комплексная сцена",
+            "image_topic": "/duo_minilx_lv1/left/image_raw",
+            "config_file": "camera_configs/duo_minilx_lv1.yaml",
+            "tests": {
+                "Тест на угол обзора": (75, 73),
+                "Тест на точность стерео-глубины": (4, 8)
+            }
+        },
         {"name": "mono_camera", "ros_pkg": "scenario_test_pkg", "launch_file": "scenario_mono_camera.launch", "test_scene": "Сцена №1", "image_topic":"/mono_camera/image_raw", "tests": [("Тест на угол обзора", 100)]},
         {
             "name": "depth_camera",
@@ -72,13 +83,59 @@ def get_tests_by_sensor(sensor_type: str, sensor_name: str):
         return sensor.get("tests", [])
     return []
 
-def get_test_results(test_name: str):
-    result = random.randint(0, 2);
-
+def get_test_results(sensor_name: str, sensor_type: str, test_name: str):
+    result = random.randint(0, 2)
 
     if result == 0:
-        return (test_name, "In Progress", 0)
+        return test_name, "In Progress", 0
     else:
-        return (test_name, "Success", result_data[test_name])
-    # else:
-    #     return (test_name, "Fail", "Ошибка")
+        print("Получение результата теста:", test_name, "для сенсора:", sensor_name)
+        try:
+            result_value = get_result_by_name(sensor_type, sensor_name, test_name)
+        except Exception as e:
+            print(f"Ошибка в get_result_by_name: {e}")
+            raise
+
+        return test_name, "Success", result_value
+
+
+def get_etalon_by_name(sensor_type: str, sensor_name: str, test_name: str):
+    """
+    Получает значение эталона для указанного теста по имени сенсора.
+    """
+    sensor = get_sensor(sensor_type, sensor_name)
+    if sensor and "tests" in sensor:
+        tests = sensor["tests"]
+        if isinstance(tests, dict):  # Когда тесты представлены как словарь
+            test_data = tests.get(test_name)
+            if test_data and isinstance(test_data, tuple):
+                return test_data[0]  # Возвращаем эталонное значение
+        elif isinstance(tests, list):  # Когда тесты представлены как список
+            for test in tests:
+                if test_name in test:
+                    # Проверяем, является ли значение теста кортежем
+                    if isinstance(test[1], tuple):
+                        return test[1][0]  # Первое значение — эталон
+        return None  # Если тест не найден
+    return None
+
+
+def get_result_by_name(sensor_type: str, sensor_name: str, test_name: str):
+    """
+    Получает значение результата для указанного теста по имени сенсора.
+    """
+    sensor = get_sensor(sensor_type, sensor_name)
+    if sensor and "tests" in sensor:
+        tests = sensor["tests"]
+        if isinstance(tests, dict):  # Когда тесты представлены как словарь
+            test_data = tests.get(test_name)
+            if test_data and isinstance(test_data, tuple):
+                return test_data[1]  # Возвращаем значение результата
+        elif isinstance(tests, list):  # Когда тесты представлены как список
+            for test in tests:
+                if test_name in test:
+                    # Проверяем, является ли значение теста кортежем
+                    if isinstance(test[1], tuple):
+                        return test[1][1]  # Второе значение — результат
+        return None  # Если тест не найден
+    return None

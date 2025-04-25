@@ -16,26 +16,48 @@ class WaitTestsThread(QThread):
         self.main_window = main_window
 
     def run(self):
-        # print(self.main_window.active_tests)
+        datch_name = self.main_window.datch_name
+        type_name = self.main_window.type_name
         while True:
             time.sleep(1)
-
             for test_entry in self.main_window.active_tests:
-                if test_entry["status"] == "In Progress":
-                    title = test_entry["test"].labelTitle.text()
-                    test_entry["test_name"], test_entry["status"], test_entry["result"] = get_test_results(title)
-                    # print("Обновили состояние:", test_entry)
-
-                    if test_entry["status"] in ["Success", "Fail"]:
+                try:
+                    if test_entry["status"] == "In Progress":
                         test_bar = test_entry["test"]
-                        test_bar.change_status(
-                            status=test_entry["status"],
-                        )
+                        if not hasattr(test_bar, "labelTitle") or not hasattr(test_bar.labelTitle, "text"):
+                            continue
 
-            all_ready = all(test_entry["status"] != "In Progress" for test_entry in self.main_window.active_tests)
-            if all_ready:
-                # print("Все готовы!")
-                break
+                        title = test_bar.labelTitle.text()
+                        try:
+                            test_name, status, result = get_test_results(datch_name, type_name, title)
+                        except Exception as e:
+                            continue
+
+                        print("Перед обновлением test_entry:", test_entry)
+                        test_entry["test_name"] = test_name
+                        test_entry["status"] = status
+                        test_entry["result"] = result
+
+                        # Если тест завершён, обновляем UI-объект
+                        if status in ["Success", "Fail"]:
+                            if hasattr(test_bar, "change_status"):
+                                # Безопасно изменяем статус UI элемента
+                                test_bar.change_status(status=status)
+                            else:
+                                print(f"Ошибка: test_bar не содержит метод change_status")
+                except Exception as e:
+                    print(f"Ошибка при обработке теста: {e}")
+
+            try:
+                all_ready = all(
+                    test_entry["status"] != "In Progress"
+                    for test_entry in self.main_window.active_tests
+                )
+                if all_ready:
+                    print("Все тесты завершены!")
+                    break
+            except Exception as e:
+                print(f"Ошибка при проверке завершения всех тестов: {e}")
 
 
 class MainWindow(QtWidgets.QMainWindow):
@@ -79,22 +101,26 @@ class MainWindow(QtWidgets.QMainWindow):
         self.type_name = self.ui.type_menu.currentText()
 
         if self.datch_name != "Выбор датчика" and self.type_name != "Тип датчика":
-            for test in get_tests_by_sensor(self.type_name, self.datch_name):
+            for test_name, test_values in get_tests_by_sensor(self.type_name, self.datch_name).items():
+                etalon = test_values[0] if isinstance(test_values, tuple) else None
+                result = test_values[1] if isinstance(test_values, tuple) else None
+
                 test_bar = TestBar(
-                    title=f"{test[0]}",
+                    title=f"{test_name}",
                     status="In Progress"
                 )
+
                 self.ui.verticalLayout_2.addWidget(test_bar)
                 self.active_tests.append({
                     "test": test_bar,
-                    "test_name": test[0],
+                    "test_name": test_name,
                     "status": "In Progress",
-                    "etalon": test[1],
-                    "result": 0
+                    "etalon": etalon,
+                    "result": result
                 })
 
                 test_bar.rightButton.clicked.connect(
-                    partial(self.handleTestButtonClicked, test[0])
+                    partial(self.handleTestButtonClicked, test_name)
                 )
 
             self.wait_thread = WaitTestsThread(self)

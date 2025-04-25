@@ -7,6 +7,7 @@ from components.test_bar import TestBar
 from components.modal_info import ModalDialog
 from components.modal_result import TestResultDialog
 from sensor_library import *
+import os
 
 
 # Поток для функции `wait_tests`
@@ -37,11 +38,8 @@ class WaitTestsThread(QThread):
                         test_entry["test_name"] = test_name
                         test_entry["status"] = status
                         test_entry["result"] = result
-
-                        # Если тест завершён, обновляем UI-объект
                         if status in ["Success", "Fail"]:
                             if hasattr(test_bar, "change_status"):
-                                # Безопасно изменяем статус UI элемента
                                 test_bar.change_status(status=status)
                             else:
                                 print(f"Ошибка: test_bar не содержит метод change_status")
@@ -66,15 +64,19 @@ class MainWindow(QtWidgets.QMainWindow):
     type_name = ''
 
     def showModalDialog(self):
+        type = self.type_name
+        project_path = os.path.abspath(os.path.dirname(__file__))
+        print(project_path)
+        if type != "":
+            img_url = project_path + "\img\\" + modal_data["type"][type]["img_url"]
+            modal = ModalDialog(
+                title=type,
+                url=img_url,
+                text=modal_data['type'][type]['article'],
+                parent=self
+            )
 
-        modal = ModalDialog(
-            title="Заголовок",
-            url="../img/type/type.jpg",
-            text="текст",
-            parent=self
-        )
-
-        modal.exec_()
+            modal.exec_()
 
     def showModalResultDialog(self, result, etalon):
         dialog = TestResultDialog(result, etalon, self)

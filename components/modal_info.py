@@ -79,7 +79,7 @@ class ModalDialog(QtWidgets.QDialog):
         # project_root = os.path.abspath(os.path.join(project_root, ".."))  # Переход в корневую папку проекта
 
         # Путь к изображению
-        self.url = os.path.join(project_root, url)  # Построение пути (корень + относительный путь)
+        self.url = url  # Построение пути (корень + относительный путь)
         self.text = text
 
         self.setupUi()

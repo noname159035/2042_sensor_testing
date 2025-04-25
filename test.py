@@ -1,9 +1,15 @@
-from math import gamma
+from sensor_library import *
 
-data = ["Иван", "Вера", "Максим", "Елена"]
+unic_tests = []
 
-glasn = ["а", "у", "о", "и", "э", "ы", "я", "ю", "е", "ё"]
+for elem in sensor_library:
+    for camera in sensor_library[elem]:
+        for test in camera["tests"]:
+            if not(test in unic_tests):
+                unic_tests.append(test)
 
-for name in data:
-    if (name[1] in glasn) and not(name[len(name)-1] in glasn):
-        print(name)
+print(unic_tests)
+
+line = "{\n'article': '',\n'img_url': ''\n}"
+for elem in unic_tests:
+    print(f"'{elem}': " + line + ",")

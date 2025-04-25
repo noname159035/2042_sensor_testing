@@ -15,6 +15,7 @@ class WaitTestsThread(QThread):
         super().__init__()
         self.main_window = main_window
 
+
     def run(self):
         # print(self.main_window.active_tests)
         while True:
